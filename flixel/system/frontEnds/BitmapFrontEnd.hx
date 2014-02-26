@@ -62,7 +62,7 @@ class BitmapFrontEnd
 	 */
 	public function dumpCache():Void
 	{
-		#if !(flash || js)
+		#if !(flash || html5)
 		var obj:CachedGraphics;
 		
 		if (_cache != null)

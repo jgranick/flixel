@@ -182,28 +182,16 @@ class FlxBitmapTextField extends FlxSprite
 		var relativeX:Float;
 		var relativeY:Float;
 		
-		#if js
-		var useAlpha:Bool = (alpha < 1);
-		#end
-		
 		var camID:Int;
 		
 		for (camera in cameras)
 		{
 			if (_background)
 			{
-				#if !js
 				bgDrawItem = camera.getDrawStackItem(FlxG.bitmap.whitePixel, true, _blendInt, antialiasing);
-				#else
-				bgDrawItem = camera.getDrawStackItem(FlxG.bitmap.whitePixel, useAlpha);
-				#end
 			}
 			
-			#if !js
 			drawItem = camera.getDrawStackItem(cachedGraphics, true, _blendInt, antialiasing);
-			#else
-			drawItem = camera.getDrawStackItem(cachedGraphics, useAlpha);
-			#end
 			
 			if (!camera.visible || !camera.exists || !isOnScreen(camera))
 			{
@@ -213,18 +201,13 @@ class FlxBitmapTextField extends FlxSprite
 			_point.x = (x - (camera.scroll.x * scrollFactor.x) - (offset.x)) + origin.x;
 			_point.y = (y - (camera.scroll.y * scrollFactor.y) - (offset.y)) + origin.y;
 			
-			#if js
-			_point.x = Math.floor(_point.x);
-			_point.y = Math.floor(_point.y);
-			#end
-
 			var csx:Float = 1;
 			var ssy:Float = 0;
 			var ssx:Float = 0;
 			var csy:Float = 1;
 			var x1:Float = 0;
 			var y1:Float = 0;
-
+			
 			if (!isSimpleRender())
 			{
 				if (_angleChanged)
@@ -265,17 +248,10 @@ class FlxBitmapTextField extends FlxSprite
 				currDrawData[currIndex++] = -ssy * height;
 				currDrawData[currIndex++] = csy * height;
 				
-				#if !js
 				currDrawData[currIndex++] = _bgDrawData[3];
 				currDrawData[currIndex++] = _bgDrawData[4];
 				currDrawData[currIndex++] = _bgDrawData[5];
 				currDrawData[currIndex++] = alpha;
-				#else
-				if (useAlpha)
-				{
-					currDrawData[currIndex++] = alpha;
-				}
-				#end
 				
 				bgDrawItem.position = currIndex;
 			}
@@ -306,17 +282,10 @@ class FlxBitmapTextField extends FlxSprite
 				currDrawData[currIndex++] = -ssy * _fontScale;
 				currDrawData[currIndex++] = csy * _fontScale;
 				
-				#if !js
 				currDrawData[currIndex++] = currTileRed;
 				currDrawData[currIndex++] = currTileGreen;
 				currDrawData[currIndex++] = currTileBlue;
 				currDrawData[currIndex++] = alpha;
-				#else
-				if (useAlpha)
-				{
-					currDrawData[currIndex++] = alpha;
-				}
-				#end
 				j++;
 			}
 			

@@ -107,7 +107,7 @@ class FlxCamera extends FlxBasic
 	 */
 	public var scroll:FlxPoint;
 	
-	#if flash
+	#if (flash || html5)
 	/**
 	 * The actual bitmap data of the camera display itself.
 	 */
@@ -116,6 +116,12 @@ class FlxCamera extends FlxBasic
 	 * Whether checkResize checks if the camera dimensions have changed to update the buffer dimensions.
 	 */
 	public var regen:Bool = false;
+	
+	/**
+	 * Sometimes it's easier to just work with a FlxSprite than it is to work directly with the BitmapData buffer.  
+	 * This sprite reference will allow you to do exactly that.
+	 */
+	public var screen:FlxSprite;
 	#end
 	
 	/**
@@ -123,14 +129,6 @@ class FlxCamera extends FlxBasic
 	 * NOTE: can be transparent for crazy FX (only works on flash)!
 	 */
 	public var bgColor:Int;
-	
-	#if flash
-	/**
-	 * Sometimes it's easier to just work with a FlxSprite than it is to work directly with the BitmapData buffer.  
-	 * This sprite reference will allow you to do exactly that.
-	 */
-	public var screen:FlxSprite;
-	#end
 	
 	/**
 	 * Whether to use alpha blending for camera's background fill or not. 
@@ -263,7 +261,7 @@ class FlxCamera extends FlxBasic
 	 */
 	private var _point:FlxPoint;
 	
-	#if flash
+	#if (flash || html5)
 	/**
 	 * Internal helper variable for doing better wipes/fills between renders.
 	 */
@@ -274,7 +272,7 @@ class FlxCamera extends FlxBasic
 	private var _flashBitmap:Bitmap;
 	#end
 	
-#if !flash
+#if !(flash || html5)
 	/**
 	 * Sprite for drawing (instead of _flashBitmap in flash)
 	 */
@@ -300,11 +298,7 @@ class FlxCamera extends FlxBasic
 	 */
 	private static var _storageHead:DrawStackItem;
 	
-	#if !js
 	@:noCompletion public function getDrawStackItem(ObjGraphics:CachedGraphics, ObjColored:Bool, ObjBlending:Int, ObjAntialiasing:Bool = false):DrawStackItem
-	#else
-	@:noCompletion public function getDrawStackItem(ObjGraphics:CachedGraphics, UseAlpha:Bool, ObjAntialiasing:Bool = false):DrawStackItem
-	#end
 	{
 		var itemToReturn:DrawStackItem = null;
 		if (_currentStackItem.initialized == false)
@@ -312,23 +306,14 @@ class FlxCamera extends FlxBasic
 			_headOfDrawStack = _currentStackItem;
 			_currentStackItem.graphics = ObjGraphics;
 			_currentStackItem.antialiasing = ObjAntialiasing;
-			#if !js
 			_currentStackItem.colored = ObjColored;
 			_currentStackItem.blending = ObjBlending;
-			#else
-			_currentStackItem.useAlpha = UseAlpha;
-			#end
 			itemToReturn = _currentStackItem;
 		}
-	#if !js
 		else if (_currentStackItem.graphics == ObjGraphics 
 			&& _currentStackItem.colored == ObjColored 
 			&& _currentStackItem.blending == ObjBlending 
-			&& _currentStackItem.antialiasing == ObjAntialiasing 
-		)
-	#else
-		else if (_currentStackItem.graphics == ObjGraphics && _currentStackItem.useAlpha == UseAlpha)
-	#end
+			&& _currentStackItem.antialiasing == ObjAntialiasing)
 		{
 			itemToReturn = _currentStackItem;
 		}
@@ -350,12 +335,8 @@ class FlxCamera extends FlxBasic
 			
 			newItem.graphics = ObjGraphics;
 			newItem.antialiasing = ObjAntialiasing;
-			#if !js
 			newItem.colored = ObjColored;
 			newItem.blending = ObjBlending;
-			#else
-			newItem.useAlpha = UseAlpha;
-			#end
 			_currentStackItem.next = newItem;
 			_currentStackItem = newItem;
 			itemToReturn = _currentStackItem;
@@ -407,19 +388,12 @@ class FlxCamera extends FlxBasic
 					untyped data.length = position; // optimized way of resizing an array
 				}
 				var tempFlags:Int = Graphics.TILE_TRANS_2x2;
-				#if !js
 				tempFlags |= Graphics.TILE_ALPHA;
 				if (currItem.colored)
 				{
 					tempFlags |= Graphics.TILE_RGB;
 				}
 				tempFlags |= currItem.blending;
-				#else
-				if (currItem.useAlpha)
-				{
-					tempFlags |= Graphics.TILE_ALPHA;
-				}
-				#end
 				currItem.graphics.tilesheet.tileSheet.drawTiles(canvas.graphics, data, (antialiasing || currItem.antialiasing), tempFlags);
 				TileSheetExt._DRAWCALLS++;
 			}
@@ -454,25 +428,19 @@ class FlxCamera extends FlxBasic
 		_point = new FlxPoint();
 		_flashOffset = new FlxPoint();
 		
-		#if flash
+		#if (flash || html5)
 		screen = new FlxSprite();
 		buffer = new BitmapData(width, height, true, 0);
 		screen.pixels = buffer;
 		screen.origin.set();
-		#end
-		
-		#if flash
 		_flashBitmap = new Bitmap(buffer);
 		_flashBitmap.x = -width * 0.5;
 		_flashBitmap.y = -height * 0.5;
+		color = 0xffffff;
 		#else
 		canvas = new Sprite();
 		canvas.x = -width * 0.5;
 		canvas.y = -height * 0.5;
-		#end
-		
-		#if flash
-		color = 0xffffff;
 		#end
 		
 		flashSprite = new Sprite();
@@ -483,7 +451,7 @@ class FlxCamera extends FlxBasic
 		flashSprite.x = x + _flashOffset.x;
 		flashSprite.y = y + _flashOffset.y;
 		
-		#if flash
+		#if (flash || html5)
 		flashSprite.addChild(_flashBitmap);
 		#else
 		flashSprite.addChild(canvas);
@@ -493,16 +461,9 @@ class FlxCamera extends FlxBasic
 		
 		_fxShakeOffset = new FlxPoint();
 		
-		#if flash
+	#if (flash || html5)
 		_fill = new BitmapData(width, height, true, FlxColor.TRANSPARENT);
-		#else
-		
-		#if !js
-		canvas.scrollRect = new Rectangle(0, 0, width, height);
-		#else
-		canvas.scrollRect = new Rectangle(0, 0, width * zoom, height * zoom);
-		#end
-		
+	#else
 		#if !FLX_NO_DEBUG
 		debugLayer = new Sprite();
 		debugLayer.x = -width * 0.5;
@@ -511,9 +472,10 @@ class FlxCamera extends FlxBasic
 		flashSprite.addChild(debugLayer);
 		#end
 		
+		canvas.scrollRect = new Rectangle(0, 0, width, height);
 		_currentStackItem = new DrawStackItem();
 		_headOfDrawStack = _currentStackItem;
-		#end
+	#end
 		
 		bgColor = FlxG.cameras.bgColor;
 	}
@@ -523,35 +485,16 @@ class FlxCamera extends FlxBasic
 	 */
 	override public function destroy():Void
 	{
-		#if flash
+	#if (flash || html5)
 		screen = FlxG.safeDestroy(screen);
-		#end
-		target = null;
-		scroll = null;
-		deadzone = null;
-		bounds = null;
-		#if flash
 		buffer = null;
 		_flashBitmap = null;
-		#end
-		_flashRect = null;
-		_flashPoint = null;
-		_fxFlashComplete = null;
-		_fxFadeComplete = null;
-		_fxShakeComplete = null;
-		_fxShakeOffset = null;
-		#if flash
 		if (_fill != null)
 		{
 			_fill.dispose();
 		}
 		_fill = null;
-		#else
-		
-		#if !FLX_NO_DEBUG
-		flashSprite.removeChild(debugLayer);
-		debugLayer = null;
-		#end
+	#else
 		flashSprite.removeChild(canvas);
 		var canvasNumChildren:Int = canvas.numChildren;
 		for (i in 0...(canvasNumChildren))
@@ -565,7 +508,23 @@ class FlxCamera extends FlxBasic
 		_headOfDrawStack.dispose();
 		_headOfDrawStack = null;
 		_currentStackItem = null;
+		
+		#if !FLX_NO_DEBUG
+		flashSprite.removeChild(debugLayer);
+		debugLayer = null;
 		#end
+	#end
+		
+		target = null;
+		scroll = null;
+		deadzone = null;
+		bounds = null;
+		_flashRect = null;
+		_flashPoint = null;
+		_fxFlashComplete = null;
+		_fxFadeComplete = null;
+		_fxShakeComplete = null;
+		_fxShakeOffset = null;
 		flashSprite = null;
 		
 		super.destroy();
@@ -959,7 +918,7 @@ class FlxCamera extends FlxBasic
 	 */
 	public function fill(Color:Int, BlendAlpha:Bool = true, FxAlpha:Float = 1.0, ?graphics:Graphics):Void
 	{
-	#if flash
+	#if (flash || html5)
 		if (BlendAlpha)
 		{
 			_fill.fillRect(_flashRect, Color);
@@ -998,7 +957,7 @@ class FlxCamera extends FlxBasic
 		{
 			alphaComponent = (_fxFlashColor >> 24) & 255;
 			
-			#if flash
+			#if (flash || html5)
 			fill((Std.int(((alphaComponent <= 0) ? 0xff : alphaComponent) * _fxFlashAlpha) << 24) + (_fxFlashColor & 0x00ffffff));
 			#else
 			fill((_fxFlashColor & 0x00ffffff), true, ((alphaComponent <= 0) ? 0xff : alphaComponent) * _fxFlashAlpha / 255, canvas.graphics);
@@ -1010,7 +969,7 @@ class FlxCamera extends FlxBasic
 		{
 			alphaComponent = (_fxFadeColor >> 24) & 255;
 			
-			#if flash
+			#if (flash || html5)
 			fill((Std.int(((alphaComponent <= 0) ?0xff : alphaComponent) * _fxFadeAlpha) << 24) + (_fxFadeColor & 0x00ffffff));
 			#else
 			fill((_fxFadeColor & 0x00ffffff), true, ((alphaComponent <= 0) ?0xff : alphaComponent) * _fxFadeAlpha / 255, canvas.graphics);
@@ -1119,7 +1078,7 @@ class FlxCamera extends FlxBasic
 		if (Value > 0)
 		{
 			width = Value; 
-			#if flash
+			#if (flash || html5)
 			if (_flashBitmap != null)
 			{
 				regen = (Value != buffer.width);
@@ -1130,11 +1089,7 @@ class FlxCamera extends FlxBasic
 			if (canvas != null)
 			{
 				var rect:Rectangle = canvas.scrollRect;
-				#if !js
 				rect.width = Value;
-				#else
-				rect.width = Value * zoom;
-				#end
 				canvas.scrollRect = rect;
 				
 				_flashOffset.x = width * 0.5 * zoom;
@@ -1153,7 +1108,7 @@ class FlxCamera extends FlxBasic
 		if (Value > 0)
 		{
 			height = Value;
-			#if flash
+			#if (flash || html5)
 			if (_flashBitmap != null)
 			{
 				regen = (Value != buffer.height);
@@ -1164,11 +1119,7 @@ class FlxCamera extends FlxBasic
 			if (canvas != null)
 			{
 				var rect:Rectangle = canvas.scrollRect;
-				#if !js
 				rect.height = Value;
-				#else
-				rect.height = Value * zoom;
-				#end
 				canvas.scrollRect = rect;
 				
 				_flashOffset.y = height * 0.5 * zoom;
@@ -1199,7 +1150,7 @@ class FlxCamera extends FlxBasic
 	private function set_alpha(Alpha:Float):Float
 	{
 		alpha = FlxMath.bound(Alpha, 0, 1);
-		#if flash
+		#if (flash || html5)
 		_flashBitmap.alpha = Alpha;
 		#else
 		canvas.alpha = Alpha;
@@ -1217,7 +1168,7 @@ class FlxCamera extends FlxBasic
 	private function set_color(Color:Int):Int
 	{
 		color = Color & 0x00ffffff;
-		#if flash
+		#if (flash || html5)
 		if (_flashBitmap != null)
 		{
 			var colorTransform:ColorTransform = _flashBitmap.transform.colorTransform;
@@ -1240,7 +1191,7 @@ class FlxCamera extends FlxBasic
 	private function set_antialiasing(Antialiasing:Bool):Bool
 	{
 		antialiasing = Antialiasing;
-		#if flash
+		#if (flash || html5)
 		_flashBitmap.smoothing = Antialiasing;
 		#end
 		return Antialiasing;

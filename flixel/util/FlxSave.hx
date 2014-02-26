@@ -121,7 +121,7 @@ class FlxSave
 		#end
 		try 
 		{ 
-			#if !js
+			#if !html5
 			result = _sharedObject.flush(MinFileSize); 
 			#else
 			result = _sharedObject.flush(); 

@@ -47,7 +47,7 @@ import flixel.system.frontEnds.SoundFrontEnd;
 #if android
 import flixel.input.android.FlxAndroidKeys;
 #end
-#if js
+#if html5
 import flixel.system.frontEnds.HTML5FrontEnd;
 #end
 #if (!FLX_NO_MOUSE || !FLX_NO_TOUCH)
@@ -198,7 +198,7 @@ class FlxG
 	public static var android(default, null):FlxAndroidKeys;
 	#end
 	
-	#if js
+	#if html5
 	/**
 	 * A reference to the HTML5FrontEnd object. Has some HTML5-specific things like
 	 * browser detection, browser dimensions etc...

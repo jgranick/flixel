@@ -301,11 +301,6 @@ class PxBitmapFont
 			cy += (rowHeight + 1);
 		}
 		
-		// Fix for html5
-		#if (js)
-		PxBitmapData.floodFill(0, 0, FlxColor.TRANSPARENT);
-		#end
-		
 		return PxBitmapData;
 	}
 	

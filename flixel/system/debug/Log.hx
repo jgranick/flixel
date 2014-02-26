@@ -86,9 +86,7 @@ class Log extends Window
 		var text:String = Style.prefix + texts.join(" ");
 		
 		// Apply text formatting
-		#if !js
 		text = FlxStringUtil.htmlFormat(text, Style.size, Style.color, Style.bold, Style.italic, Style.underlined);
-		#end
 		
 		// Check if the text has been added yet already
 		if (FireOnce)
@@ -118,21 +116,11 @@ class Log extends Window
 			{
 				newText += _lines[i] + "<br>";
 			}
-			// TODO: Make htmlText work on HTML5 target
-			#if !js
 			_text.htmlText = newText;
-			#else
-			_text.text = newText;
-			#end
 		}
 		else
 		{
-			// TODO: Make htmlText work on HTML5 target
-			#if !js
 			_text.htmlText += (text + "<br>");
-			#else
-			_text.text += text + "\n";
-			#end
 		}
 		
 		_text.scrollV = Std.int(_text.maxScrollV);
@@ -143,7 +131,7 @@ class Log extends Window
 	{
 		_text.text = "";
 		_lines.splice(0, _lines.length);
-		#if !js
+		#if !html5
 		_text.scrollV = 0;
 		#end
 	}

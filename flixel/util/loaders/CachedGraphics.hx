@@ -70,7 +70,7 @@ class CachedGraphics
 	 */
 	public function dump():Void
 	{
-		#if !(flash || js)
+		#if !(flash || html5)
 		if (canBeDumped)
 		{
 			bitmap.dumpBits();
@@ -84,7 +84,7 @@ class CachedGraphics
 	 */
 	public function undump():Void
 	{
-		#if !(flash || js)
+		#if !(flash || html5)
 		if (isDumped)
 		{
 			var newBitmap:BitmapData = getBitmapFromSystem();

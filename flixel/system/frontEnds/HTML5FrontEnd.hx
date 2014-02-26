@@ -3,7 +3,7 @@ package flixel.system.frontEnds;
 import flixel.FlxG;
 import flixel.util.FlxPoint;
 
-#if js
+#if html5
 import js.Browser;
 
 class HTML5FrontEnd

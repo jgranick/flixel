@@ -719,7 +719,7 @@ class FlxSprite extends FlxObject
 			calcFrame();
 		}
 		
-	#if !flash
+	#if !(flash && html5)
 		var drawItem:DrawStackItem;
 		var currDrawData:Array<Float>;
 		var currIndex:Int;
@@ -737,31 +737,10 @@ class FlxSprite extends FlxObject
 				continue;
 			}
 			
-		#if !flash
-			#if !js
-			drawItem = camera.getDrawStackItem(cachedGraphics, isColored, _blendInt, antialiasing);
-			#else
-			var useAlpha:Bool = (alpha < 1) || (camera.alpha < 1);
-			drawItem = camera.getDrawStackItem(cachedGraphics, useAlpha);
-			#end
-			currDrawData = drawItem.drawData;
-			currIndex = drawItem.position;
-			
+#if (flash || html5)
 			_point.x = x - (camera.scroll.x * scrollFactor.x) - (offset.x);
 			_point.y = y - (camera.scroll.y * scrollFactor.y) - (offset.y);
 			
-			_point.x = (_point.x) + origin.x;
-			_point.y = (_point.y) + origin.y;
-			
-			#if js
-			_point.x = Math.floor(_point.x);
-			_point.y = Math.floor(_point.y);
-			#end
-		#else
-			_point.x = x - (camera.scroll.x * scrollFactor.x) - (offset.x);
-			_point.y = y - (camera.scroll.y * scrollFactor.y) - (offset.y);
-		#end
-#if flash
 			if (simpleRender)
 			{
 				// use fround() to deal with floating point precision issues in flash
@@ -784,6 +763,16 @@ class FlxSprite extends FlxObject
 				camera.buffer.draw(framePixels, _matrix, null, blend, null, (antialiasing || camera.antialiasing));
 			}
 #else
+			drawItem = camera.getDrawStackItem(cachedGraphics, isColored, _blendInt, antialiasing);
+			currDrawData = drawItem.drawData;
+			currIndex = drawItem.position;
+			
+			_point.x = x - (camera.scroll.x * scrollFactor.x) - (offset.x);
+			_point.y = y - (camera.scroll.y * scrollFactor.y) - (offset.y);
+			
+			_point.x = (_point.x) + origin.x;
+			_point.y = (_point.y) + origin.y;
+			
 			var csx:Float = _facingMult;
 			var ssy:Float = 0;
 			var ssx:Float = 0;
@@ -865,7 +854,6 @@ class FlxSprite extends FlxObject
 			currDrawData[currIndex++] = c;
 			currDrawData[currIndex++] = d;
 			
-			#if !js
 			if (isColored)
 			{
 				currDrawData[currIndex++] = _red; 
@@ -873,12 +861,6 @@ class FlxSprite extends FlxObject
 				currDrawData[currIndex++] = _blue;
 			}
 			currDrawData[currIndex++] = (alpha * camera.alpha);
-			#else
-			if (useAlpha)
-			{
-				currDrawData[currIndex++] = (alpha * camera.alpha);
-			}
-			#end
 			drawItem.position = currIndex;
 #end
 			#if !FLX_NO_DEBUG
@@ -1124,7 +1106,7 @@ class FlxSprite extends FlxObject
 			loadGraphic(GraphicDefault);
 		}
 		
-		#if !(flash || js)
+		#if !(flash || html5)
 		if (!RunOnCpp)
 		{
 			return;
@@ -1439,19 +1421,17 @@ class FlxSprite extends FlxObject
 	
 	private function set_blend(Value:BlendMode):BlendMode 
 	{
-		#if !flash
+		#if !(flash || html5)
 		if (Value != null)
 		{
 			switch (Value)
 			{
 				case BlendMode.ADD:
 					_blendInt = Tilesheet.TILE_BLEND_ADD;
-			#if !js
 				case BlendMode.MULTIPLY:
 					_blendInt = Tilesheet.TILE_BLEND_MULTIPLY;
 				case BlendMode.SCREEN:
 					_blendInt = Tilesheet.TILE_BLEND_SCREEN;
-			#end
 				default:
 					_blendInt = Tilesheet.TILE_BLEND_NORMAL;
 			}

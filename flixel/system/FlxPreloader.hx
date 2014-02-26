@@ -20,7 +20,7 @@ import flixel.FlxG;
 import flixel.util.FlxColor;
 import flixel.util.FlxStringUtil;
 
-#if (js || debug)
+#if (html5 || debug)
 class FlxPreloader extends NMEPreloader
 {	
 	public function new()

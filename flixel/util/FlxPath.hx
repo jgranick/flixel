@@ -640,7 +640,7 @@ class FlxPath
 		}
 		
 		//Set up our global flash graphics object to draw out the path
-		#if flash
+		#if (flash || html5)
 		var gfx:Graphics = FlxSpriteUtil.flashGfx;
 		gfx.clear();
 		#else
@@ -708,7 +708,7 @@ class FlxPath
 			i++;
 		}
 		
-		#if flash
+		#if (flash || html5)
 		//then stamp the path down onto the game buffer
 		Camera.buffer.draw(FlxSpriteUtil.flashGfxSprite);
 		#end

@@ -533,15 +533,9 @@ class FlxTilemap extends FlxObject
 		
 		if (buffer == null)	return;
 		
-		#if !js
 		// Copied from getScreenXY()
 		_helperPoint.x = Math.floor((x - Math.floor(Camera.scroll.x) * scrollFactor.x) * 5) / 5 + 0.1;
 		_helperPoint.y = Math.floor((y - Math.floor(Camera.scroll.y) * scrollFactor.y) * 5) / 5 + 0.1;
-		#else
-		// Copied from getScreenXY()
-		_helperPoint.x = x - Camera.scroll.x * scrollFactor.x; 
-		_helperPoint.y = y - Camera.scroll.y * scrollFactor.y;
-		#end
 		
 		var tileID:Int;
 		var debugColor:Int;
@@ -1661,9 +1655,9 @@ class FlxTilemap extends FlxObject
 	 */
 	private function drawTilemap(Buffer:FlxTilemapBuffer, Camera:FlxCamera):Void
 	{
-		#if flash
+	#if (flash || html5)
 		Buffer.fill();
-		#else
+	#else
 		_helperPoint.x = x - Camera.scroll.x * scrollFactor.x; //copied from getScreenXY()
 		_helperPoint.y = y - Camera.scroll.y * scrollFactor.y;
 		
@@ -1674,14 +1668,10 @@ class FlxTilemap extends FlxObject
 		var hackScaleX:Float = tileScaleHack * scaleX;
 		var hackScaleY:Float = tileScaleHack * scaleY;
 		
-		#if !js
 		var drawItem:DrawStackItem = Camera.getDrawStackItem(cachedGraphics, false, 0);
-		#else
-		var drawItem:DrawStackItem = Camera.getDrawStackItem(cachedGraphics, false);
-		#end
 		var currDrawData:Array<Float> = drawItem.drawData;
 		var currIndex:Int = drawItem.position;
-		#end
+	#end
 		
 		// Copy tile images into the tile buffer
 		_point.x = (Camera.scroll.x * scrollFactor.x) - x; //modified from getScreenXY()
@@ -1729,7 +1719,7 @@ class FlxTilemap extends FlxObject
 			
 			while (column < screenColumns)
 			{
-				#if flash
+				#if (flash || html5)
 				_flashRect = _rects[columnIndex];
 				
 				if (_flashRect != null)
@@ -1772,13 +1762,8 @@ class FlxTilemap extends FlxObject
 					drawX = _helperPoint.x + (columnIndex % widthInTiles) * _scaledTileWidth;
 					drawY = _helperPoint.y + Math.floor(columnIndex / widthInTiles) * _scaledTileHeight;
 					
-					#if !js
 					currDrawData[currIndex++] = drawX;
 					currDrawData[currIndex++] = drawY;
-					#else
-					currDrawData[currIndex++] = Math.floor(drawX);
-					currDrawData[currIndex++] = Math.floor(drawY);
-					#end
 					currDrawData[currIndex++] = tileID;
 					
 					// Tilemap tearing hack
@@ -1788,28 +1773,26 @@ class FlxTilemap extends FlxObject
 					// Tilemap tearing hack
 					currDrawData[currIndex++] = hackScaleY; 
 					
-					#if !js
 					// Alpha
 					currDrawData[currIndex++] = 1.0; 
-					#end
 				}
 				#end
 				
-				#if flash
+				#if (flash || html5)
 				_flashPoint.x += _tileWidth;
 				#end
 				column++;
 				columnIndex++;
 			}
 			
-			#if flash
+			#if (flash || html5)
 			_flashPoint.y += _tileHeight;
 			#end
 			rowIndex += widthInTiles;
 			row++;
 		}
 		
-		#if !flash
+		#if !(flash || html5)
 		drawItem.position = currIndex;
 		#end
 		
