@@ -701,8 +701,6 @@ class FlxText extends FlxSprite
 			_matrix.translate(Std.int(0.5 * _widthInc), Std.int(0.5 * _heightInc));
 			
 			// If it's a single, centered line of text, we center it ourselves so it doesn't blur to hell
-			// TODO: bitfive
-			#if !html
 			if ((_defaultFormat.align == TextFormatAlign.CENTER) && (_textField.numLines == 1))
 			{
 				_formatAdjusted.align = TextFormatAlign.LEFT;
@@ -714,7 +712,6 @@ class FlxText extends FlxSprite
 				_matrix.translate(Math.floor((width - _textField.textWidth) / 2), 0);
 				#end
 			}
-			#end
 			
 			if (borderStyle != BORDER_NONE)
 			{
