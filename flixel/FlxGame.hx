@@ -382,7 +382,7 @@ class FlxGame extends Sprite
 		var width:Int = Lib.current.stage.stageWidth;
 		var height:Int = Lib.current.stage.stageHeight;
 		
-		#if !flash
+		#if !(flash || html5)
 		FlxG.bitmap.onContext();
 		#end
 		

@@ -17,7 +17,7 @@ import flixel.util.loaders.TexturePackerData;
  */
 class TileSheetData implements IFlxDestroyable
 {
-	#if !flash
+	#if !(flash || html5)
 	public var tileSheet:TileSheetExt;
 	#end
 	
@@ -38,7 +38,7 @@ class TileSheetData implements IFlxDestroyable
 	public function new(Bitmap:BitmapData)
 	{
 		bitmap = Bitmap;
-		#if !flash
+		#if !(flash || html5)
 		tileSheet = new TileSheetExt(bitmap);
 		#end
 		flxSpriteFrames = new Map<String, FlxSpriteFrames>();
@@ -148,7 +148,7 @@ class TileSheetData implements IFlxDestroyable
 		}
 		
 		var frame:FlxFrame = new FlxFrame(this);
-		#if !flash
+		#if !(flash || html5)
 		frame.tileID = addTileRect(rect, point);
 		#end
 		frame.name = key;
@@ -170,7 +170,7 @@ class TileSheetData implements IFlxDestroyable
 		return flxFrames.exists(key);
 	}
 	
-	#if !flash
+	#if !(flash || html5)
 	public inline function addTileRect(tileRect:Rectangle, ?point:Point):Int
 	{
 		return tileSheet.addTileRectID(tileRect, point);
@@ -180,7 +180,7 @@ class TileSheetData implements IFlxDestroyable
 	public function destroy():Void
 	{
 		bitmap = null;
-		#if !flash
+		#if !(flash || html5)
 		tileSheet.destroy();
 		tileSheet = null;
 		#end
@@ -205,7 +205,7 @@ class TileSheetData implements IFlxDestroyable
 		frameNames = null;
 	}
 	
-	#if !flash
+	#if !(flash || html5)
 	public function onContext(bitmap:BitmapData):Void
 	{
 		this.bitmap = bitmap;
@@ -271,7 +271,7 @@ class TileSheetData implements IFlxDestroyable
 		{
 			texFrame.center.set(texFrame.frame.width * 0.5 + texFrame.offset.x, texFrame.frame.height * 0.5 + texFrame.offset.y);
 		}
-		#if !flash
+		#if !(flash || html5)
 		texFrame.tileID = addTileRect(texFrame.frame, new Point(0.5 * texFrame.frame.width, 0.5 * texFrame.frame.height));
 		#end
 		flxFrames.set(key, texFrame);

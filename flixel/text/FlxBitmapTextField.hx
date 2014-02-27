@@ -627,7 +627,7 @@ class FlxBitmapTextField extends FlxSprite
 			_bgDrawData.push( -_halfWidth);
 			_bgDrawData.push( -_halfHeight);
 			
-			#if !flash
+			#if !(flash || html5)
 			var colorMultiplier:Float = 1 / (255 * 255);
 			
 			var red:Float = (_backgroundColor >> 16) * colorMultiplier;
@@ -647,7 +647,7 @@ class FlxBitmapTextField extends FlxSprite
 		
 		if (_fontScale > 0)
 		{
-			#if flash
+			#if (flash || html5)
 			cachedGraphics.bitmap.lock();
 			#end
 			
@@ -700,14 +700,14 @@ class FlxBitmapTextField extends FlxSprite
 				}
 				if (_shadow) 
 				{
-					#if flash
+					#if (flash || html5)
 					_font.render(cachedGraphics.bitmap, _preparedShadowGlyphs, t, _shadowColor, 1 + ox + _padding, 1 + oy + row * (fontHeight + _lineSpacing) + _padding, _letterSpacing);
 					#else
 					_font.render(_drawData, t, _shadowColor, color, alpha, 1 + ox + _padding - _halfWidth, 1 + oy + row * (fontHeight * _fontScale + _lineSpacing) + _padding - _halfHeight, _letterSpacing, _fontScale);
 					#end
 				}
 				
-				#if flash
+				#if (flash || html5)
 				_font.render(cachedGraphics.bitmap, _preparedTextGlyphs, t, _textColor, ox + _padding, oy + row * (fontHeight + _lineSpacing) + _padding, _letterSpacing);
 				#else
 				_font.render(_drawData, t, _textColor, color, alpha, ox + _padding - _halfWidth, oy + row * (fontHeight * _fontScale + _lineSpacing) + _padding - _halfHeight, _letterSpacing, _fontScale, _useTextColor);

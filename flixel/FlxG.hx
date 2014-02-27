@@ -1,6 +1,5 @@
 package flixel;
 
-import flash.Lib;
 import flash.display.DisplayObject;
 import flash.display.Stage;
 import flash.display.StageDisplayState;
@@ -21,16 +20,15 @@ import flixel.system.frontEnds.PluginFrontEnd;
 import flixel.system.frontEnds.VCRFrontEnd;
 import flixel.system.frontEnds.WatchFrontEnd;
 import flixel.system.scaleModes.BaseScaleMode;
-import flixel.system.scaleModes.FixedScaleMode;
 import flixel.system.scaleModes.RatioScaleMode;
 import flixel.text.pxText.PxBitmapFont;
-#if !html5
-import flixel.util.FlxCollision; // TODO: bitfive
-#end
 import flixel.util.FlxMath;
 import flixel.util.FlxRandom;
 import flixel.util.FlxRect;
 import flixel.util.FlxSave;
+#if !html5
+import flixel.util.FlxCollision; // TODO: bitfive
+#end
 
 #if !FLX_NO_TOUCH
 import flixel.input.touch.FlxTouchManager;
@@ -266,7 +264,7 @@ class FlxG
 	public static var sound(default, null):SoundFrontEnd = new SoundFrontEnd();
 	#end
 	
-	private static var _scaleMode:BaseScaleMode = new FixedScaleMode();
+	private static var _scaleMode:BaseScaleMode = new RatioScaleMode();
 	
 	/**
 	 * Handy helper functions that takes care of all the things to resize the game.

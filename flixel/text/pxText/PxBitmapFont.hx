@@ -22,7 +22,7 @@ class PxBitmapFont
 	
 	private static var ZERO_POINT:Point = new Point();
 	
-	#if flash
+	#if (flash || html5)
 	private var _glyphs:Array<BitmapData>;
 	#else
 	private var _glyphs:Map<Int, PxFontSymbol>;
@@ -33,7 +33,7 @@ class PxBitmapFont
 	private var _glyphString:String;
 	private var _maxHeight:Int = 0;
 	
-	#if flash
+	#if (flash || html5)
 	private var _matrix:Matrix;
 	private var _colorTransform:ColorTransform;
 	#end
@@ -55,7 +55,7 @@ class PxBitmapFont
 	{
 		_point = new Point();
 		
-		#if flash
+		#if (flash || html5)
 		_matrix = new Matrix();
 		_colorTransform = new ColorTransform();
 		_glyphs = [];
@@ -77,7 +77,7 @@ class PxBitmapFont
 		
 		_glyphString = PxLetters;
 		
-		#if flash
+		#if (flash || html5)
 		// Fill array with nulls
 		for (i in 0...256) 
 		{
@@ -96,7 +96,7 @@ class PxBitmapFont
 			_region.height = cachedGraphics.bitmap.height;
 			var currRect:Rectangle;
 			
-			#if flash
+			#if (flash || html5)
 			updateGlyphData();
 			#else
 			updateGlyphData(cachedGraphics.tilesheet);
@@ -124,7 +124,7 @@ class PxBitmapFont
 			var key:String = FlxG.bitmap.getUniqueKey("font");
 			setCachedGraphics(FlxG.bitmap.add(result, false, key));
 			
-			#if flash
+			#if (flash || html5)
 			updateGlyphData();
 			#else
 			updateGlyphData(cachedGraphics.tilesheet);
@@ -139,7 +139,7 @@ class PxBitmapFont
 	 */
 	public function updateGlyphData(Tiles:TileSheetData = null):Void
 	{
-		#if !flash
+		#if !(flash || html5)
 		_glyphs = new Map<Int, PxFontSymbol>();
 		#end
 		
@@ -176,7 +176,7 @@ class PxBitmapFont
 				}
 				
 				// Create glyph
-				#if flash
+				#if (flash || html5)
 				bd = null;
 				
 				if (charString != " " && charString != "")
@@ -212,7 +212,7 @@ class PxBitmapFont
 				rect = _tileRects[letterID];
 				
 				// Create glyph
-				#if flash
+				#if (flash || html5)
 				var bd:BitmapData = new BitmapData(Std.int(rect.width), Std.int(rect.height), true, 0x0);
 				bd.copyPixels(cachedGraphics.bitmap, rect, ZERO_POINT, null, null, true);
 				
@@ -233,7 +233,7 @@ class PxBitmapFont
 		dispose();
 		_maxHeight = 0;
 		
-		#if flash
+		#if (flash || html5)
 		_glyphs = [];
 		#else
 		_glyphs = new Map<Int, PxFontSymbol>();
@@ -354,7 +354,7 @@ class PxBitmapFont
 		return PxBitmapData;
 	}
 	
-	#if flash
+	#if (flash || html5)
 	public function getPreparedGlyphs(PxScale:Float, PxColor:Int, PxUseColorTransform:Bool = true):Array<BitmapData>
 	{
 		var result:Array<BitmapData> = [];
@@ -416,7 +416,7 @@ class PxBitmapFont
 	 */
 	public function dispose():Void 
 	{
-		#if flash
+		#if (flash || html5)
 		var bd:BitmapData;
 		
 		for (i in 0...(_glyphs.length)) 
@@ -436,7 +436,7 @@ class PxBitmapFont
 		_glyphs = null;
 	}
 	
-	#if flash
+	#if (flash || html5)
 	/**
 	 * Serializes font data to cryptic bit string.
 	 * 
@@ -467,7 +467,7 @@ class PxBitmapFont
 	}
 	#end
 	
-	#if flash
+	#if (flash || html5)
 	private function setGlyph(PxCharID:Int, PxBitmapData:BitmapData):Void 
 	{
 		if (_glyphs[PxCharID] != null) 
@@ -511,13 +511,13 @@ class PxBitmapFont
 	 * @param	PxOffsetX		X position of thext output.
 	 * @param	PxOffsetY		Y position of thext output.
 	 */
-	#if flash 
+	#if (flash || html5) 
 	public function render(PxBitmapData:BitmapData, PxFontData:Array<BitmapData>, PxText:String, PxColor:Int, PxOffsetX:Int, PxOffsetY:Int, PxLetterSpacing:Int):Void 
 	#else
 	public function render(DrawData:Array<Float>, PxText:String, PxColor:Int, PxSecondColor:Int, PxAlpha:Float, PxOffsetX:Float, PxOffsetY:Float, PxLetterSpacing:Int, PxScale:Float, PxUseColor:Bool = true):Void 
 	#end
 	{
-		#if !flash
+		#if !(flash || html5)
 		var colorMultiplier:Float = 1 / 255;
 		var red:Float = colorMultiplier;
 		var green:Float = colorMultiplier;
@@ -539,7 +539,7 @@ class PxBitmapFont
 		_point.x = PxOffsetX;
 		_point.y = PxOffsetY;
 		
-		#if flash
+		#if (flash || html5)
 		var glyph:BitmapData;
 		#else
 		var glyph:PxFontSymbol;
@@ -550,7 +550,7 @@ class PxBitmapFont
 		{
 			var charCode:Int = PxText.charCodeAt(i);
 			
-			#if flash
+			#if (flash || html5)
 			glyph = PxFontData[charCode];
 			if (glyph != null) 
 			#else
@@ -558,7 +558,7 @@ class PxBitmapFont
 			if (_glyphs.exists(charCode))
 			#end
 			{
-				#if flash
+				#if (flash || html5)
 				PxBitmapData.copyPixels(glyph, glyph.rect, _point, null, null, true);
 				_point.x += glyph.width + PxLetterSpacing;
 				#else
@@ -598,7 +598,7 @@ class PxBitmapFont
 		{
 			var charCode:Int = PxText.charCodeAt(i);
 			
-			#if flash
+			#if (flash || html5)
 			var glyph:BitmapData = _glyphs[charCode];
 			
 			if (glyph != null) 
@@ -642,7 +642,7 @@ class PxBitmapFont
 	 */
 	public var numLetters(get, never):Int;
 	
-	#if !flash
+	#if !(flash || html5)
 	public var pixels(get_pixels, null):BitmapData;
 	
 	private function get_pixels():BitmapData 
@@ -664,7 +664,7 @@ class PxBitmapFont
 	
 	public function get_numLetters():Int 
 	{
-		#if flash
+		#if (flash || html5)
 		return _glyphs.length;
 		#else
 		return _num_letters;

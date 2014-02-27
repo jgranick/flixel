@@ -21,7 +21,7 @@ class BitmapFrontEnd
 		clearCache();
 	}
 	
-	#if !flash
+	#if !(flash || html5)
 	public var whitePixel(get, null):CachedGraphics;
 	
 	private var _whitePixel:CachedGraphics;
