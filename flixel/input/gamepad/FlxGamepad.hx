@@ -344,8 +344,8 @@ class FlxGamepad implements IFlxDestroyable
 		{
 			axisValue = _device.getControlAt(AxisID).value;
 		}
-		#elseif html5
-		axisValue = untyped navigator.webkitGetGamepads().item(id).axes[AxisID];
+		#elseif html5 // TODO: bitfive
+		//axisValue = untyped navigator.webkitGetGamepads().item(id).axes[AxisID];
 		#else
 		axisValue = axis[AxisID];
 		#end

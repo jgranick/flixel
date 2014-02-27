@@ -744,7 +744,7 @@ class FlxGame extends Sprite
 		}
 		#end
 
-		#if !flash
+		#if !(flash || html5)
 		TileSheetExt._DRAWCALLS = 0;
 		#end
 		
@@ -768,7 +768,7 @@ class FlxGame extends Sprite
 		}
 		#end
 		
-		#if !flash
+		#if !(flash || html5)
 		FlxG.cameras.render();
 		
 		#if !FLX_NO_DEBUG

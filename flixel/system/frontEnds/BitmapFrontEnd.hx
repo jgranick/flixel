@@ -420,17 +420,18 @@ class BitmapFrontEnd
 	
 	public function inOpenFlAssets(bitmap:BitmapData):Bool
 	{
-		var bitmapDataCache = Assets.cache.bitmapData;
-		if (bitmapDataCache != null)
-		{
-			for (bd in bitmapDataCache)
-			{
-				if (bd == bitmap)
-				{
-					return true;
-				}
-			}
-		}
+		// TODO: bitfive
+		//var bitmapDataCache = Assets.cache.bitmapData;
+		//if (bitmapDataCache != null)
+		//{
+			//for (bd in bitmapDataCache)
+			//{
+				//if (bd == bitmap)
+				//{
+					//return true;
+				//}
+			//}
+		//}
 		return false;
 	}
 }

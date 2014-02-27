@@ -186,7 +186,7 @@ class CameraFrontEnd
 			}
 			#end
 			
-		#if !flash
+		#if !(flash || html5)
 			camera.clearDrawStack();
 			camera.canvas.graphics.clear();
 			// Clearing camera's debug sprite
@@ -195,7 +195,7 @@ class CameraFrontEnd
 			#end
 		#end
 			
-			#if flash
+			#if (flash || html5)
 			camera.fill(camera.bgColor, camera.useBgAlphaBlending);
 			camera.screen.dirty = true;
 			#else
@@ -204,7 +204,7 @@ class CameraFrontEnd
 		}
 	}
 	
-	#if !flash
+	#if !(flash || html5)
 	private inline function render():Void
 	{
 		for (camera in list)

@@ -21,9 +21,12 @@ import flixel.system.frontEnds.PluginFrontEnd;
 import flixel.system.frontEnds.VCRFrontEnd;
 import flixel.system.frontEnds.WatchFrontEnd;
 import flixel.system.scaleModes.BaseScaleMode;
+import flixel.system.scaleModes.FixedScaleMode;
 import flixel.system.scaleModes.RatioScaleMode;
 import flixel.text.pxText.PxBitmapFont;
-import flixel.util.FlxCollision;
+#if !html5
+import flixel.util.FlxCollision; // TODO: bitfive
+#end
 import flixel.util.FlxMath;
 import flixel.util.FlxRandom;
 import flixel.util.FlxRect;
@@ -263,7 +266,7 @@ class FlxG
 	public static var sound(default, null):SoundFrontEnd = new SoundFrontEnd();
 	#end
 	
-	private static var _scaleMode:BaseScaleMode = new RatioScaleMode();
+	private static var _scaleMode:BaseScaleMode = new FixedScaleMode();
 	
 	/**
 	 * Handy helper functions that takes care of all the things to resize the game.
@@ -338,10 +341,12 @@ class FlxG
 	 * @param	Camera			If the collision is taking place in a camera other than FlxG.camera (the default/current) then pass it here
 	 * @return	Whether the sprites collide
 	 */
+	#if !html5 // TODO: bitfive
 	public static inline function pixelPerfectOverlap(Sprite1:FlxSprite, Sprite2:FlxSprite, AlphaTolerance:Int = 255, ?Camera:FlxCamera):Bool
 	{
 		return FlxCollision.pixelPerfectCheck(Sprite1, Sprite2, AlphaTolerance, Camera);
 	}
+	#end
 	
 	/**
 	 * Call this function to see if one FlxObject collides with another.

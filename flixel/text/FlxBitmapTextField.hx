@@ -146,7 +146,7 @@ class FlxBitmapTextField extends FlxSprite
 		return Value;
 	}
 	
-	#if flash
+	#if (flash || html5)
 	override public function draw():Void 
 	{
 		if (_pendingTextChange)

@@ -122,7 +122,7 @@ class FlxTilemap extends FlxObject
 	/**
 	 * Internal representation of rectangles, one for each tile in the entire tilemap, used to speed up drawing.
 	 */
-	#if flash
+	#if (flash || html5)
 	private var _rects:Array<Rectangle>;
 	#end
 	/**
@@ -143,7 +143,7 @@ class FlxTilemap extends FlxObject
 	private var _tileObjects:Array<FlxTile>;
 	
 	#if !FLX_NO_DEBUG
-	#if flash
+	#if (flash || html5)
 	/**
 	 * Internal, used for rendering the debug bounding box display.
 	 */
@@ -170,8 +170,9 @@ class FlxTilemap extends FlxObject
 	/**
 	 * Internal, used to sort of insert blank tiles in front of the tiles in the provided graphic.
 	 */
-	private var _startingIndex:Int = 0;
-	#if !flash
+	private var _startingIndex:Int = 0; 
+	
+	#if !(flash || html5)
 	/**
 	 * Rendering helper, minimize new object instantiation on repetitive methods. Used only in cpp
 	 */
@@ -206,7 +207,7 @@ class FlxTilemap extends FlxObject
 		
 		_startingIndex = 0;
 		
-		#if !flash
+		#if !(flash || html5)
 		_helperPoint = new Point();
 		#end
 	}
@@ -248,7 +249,7 @@ class FlxTilemap extends FlxObject
 		
 		_data = null;
 		
-		#if flash
+		#if (flash || html5)
 		_rects = null;
 		#if !FLX_NO_DEBUG
 		_debugRect = null;
@@ -440,7 +441,7 @@ class FlxTilemap extends FlxObject
 		}
 		
 		// Create debug tiles for rendering bounding boxes on demand
-		#if (flash && !FLX_NO_DEBUG)
+		#if ((flash || html5) && !FLX_NO_DEBUG)
 		_debugTileNotSolid = makeDebugTile(FlxColor.BLUE);
 		_debugTilePartial = makeDebugTile(FlxColor.PINK);
 		_debugTileSolid = makeDebugTile(FlxColor.GREEN);
@@ -453,7 +454,7 @@ class FlxTilemap extends FlxObject
 		width = widthInTiles * _scaledTileWidth;
 		height = heightInTiles * _scaledTileHeight;
 		
-		#if flash
+		#if (flash || html5)
 		#if !FLX_NO_DEBUG
 		_debugRect = new Rectangle(0, 0, _tileWidth, _tileHeight);
 		#end
@@ -514,7 +515,7 @@ class FlxTilemap extends FlxObject
 	#end
 	
 #if !FLX_NO_DEBUG
-	#if flash
+	#if (flash || html5)
 	override public function drawDebug():Void {}
 	#else
 	override public function drawDebugOnCamera(?Camera:FlxCamera):Void
@@ -657,7 +658,7 @@ class FlxTilemap extends FlxObject
 			
 			buffer = _buffers[i++];
 			buffer.dirty = true;
-			#if flash
+			#if (flash || html5)
 			if (!buffer.dirty)
 			{
 				// Copied from getScreenXY()
@@ -1545,7 +1546,7 @@ class FlxTilemap extends FlxObject
 		if (cachedGraphics != null && _tileWidth >= 1 && _tileHeight >= 1)
 		{
 			framesData = cachedGraphics.tilesheet.getSpriteSheetFrames(region, new Point(0, 0));
-			#if !flash
+			#if !(flash || html5)
 			_rectIDs = new Array<Int>();
 			FlxArrayUtil.setLength(_rectIDs, totalTiles);
 			#end
@@ -1573,7 +1574,7 @@ class FlxTilemap extends FlxObject
 		
 		var rect:Rectangle = null;
 		
-		#if flash
+		#if (flash || html5)
 		rect = _rects[rowIndex];
 		#else
 		
@@ -1804,7 +1805,7 @@ class FlxTilemap extends FlxObject
 	 * Internal function to clean up the map loading code.
 	 * Just generates a wireframe box the size of a tile with the specified color.
 	 */
-	#if (flash && !FLX_NO_DEBUG)
+	#if ((flash || html5) && !FLX_NO_DEBUG)
 	private function makeDebugTile(Color:Int):BitmapData
 	{
 		var debugTile:BitmapData;
@@ -1839,7 +1840,7 @@ class FlxTilemap extends FlxObject
 		var i:Int = 1;
 		var l:Int = Points.length - 1;
 		
-		while(i < l)
+		while (i < l)
 		{
 			node = Points[i];
 			deltaPrevious = (node.x - last.x)/(node.y - last.y);
@@ -2190,7 +2191,7 @@ class FlxTilemap extends FlxObject
 		
 		if ((tile == null) || !tile.visible)
 		{
-			#if flash
+			#if (flash || html5)
 			_rects[Index] = null;
 			#else
 			_rectIDs[Index] = -1;
@@ -2199,7 +2200,7 @@ class FlxTilemap extends FlxObject
 			return;
 		}
 		
-		#if flash
+		#if (flash || html5)
 		var rx:Int = (_data[Index] - _startingIndex) * (_tileWidth + region.spacingX);
 		var ry:Int = 0;
 		

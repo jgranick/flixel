@@ -1,6 +1,6 @@
 package flixel.system;
 
-#if !flash
+#if !(flash || html5)
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxSprite;

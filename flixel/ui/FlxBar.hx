@@ -27,7 +27,7 @@ import flixel.util.loaders.CachedGraphics;
  */
 class FlxBar extends FlxSprite
 {
-	#if flash
+	#if (flash || html5)
 	private var canvas:BitmapData;
 	#end
 	
@@ -142,7 +142,7 @@ class FlxBar extends FlxSprite
 		barWidth = width;
 		barHeight = height;
 		
-		#if flash
+		#if (flash || html5)
 		makeGraphic(barWidth, barHeight, FlxColor.WHITE, true);
 		#else
 		this.width = frameWidth = width;
@@ -156,7 +156,7 @@ class FlxBar extends FlxSprite
 		
 		filledBarPoint = new Point(0, 0);
 		
-		#if flash
+		#if (flash || html5)
  		canvas = new BitmapData(width, height, true, FlxColor.TRANSPARENT);
 		#end
 		
@@ -175,14 +175,14 @@ class FlxBar extends FlxSprite
 		emptyKill = false;
 		
 		// Make sure the bar is drawn
-		#if flash
+		#if (flash || html5)
 		updateBar();
 		#end
 	}
 	
 	override public function destroy():Void 
 	{
-		#if flash
+		#if (flash || html5)
 		canvas.dispose();
 		canvas = null;
 		#else
@@ -500,7 +500,7 @@ class FlxBar extends FlxSprite
 	{
 		barType = BAR_GRADIENT;
 		
-		#if !flash
+		#if !(flash || html5)
 		var colA:Int;
 		var colRGB:Int;
 		
@@ -545,7 +545,7 @@ class FlxBar extends FlxSprite
 		
 		if (showBorder)
 		{
-			#if flash
+			#if (flash || html5)
 			emptyBar = new BitmapData(barWidth, barHeight, true, border);
 			FlxGradient.overlayGradientOnBitmapData(emptyBar, barWidth - 2, barHeight - 2, empty, 1, 1, chunkSize, rotation);
 			
@@ -569,7 +569,7 @@ class FlxBar extends FlxSprite
 		}
 		else
 		{
-			#if flash
+			#if (flash || html5)
 			emptyBar = FlxGradient.createGradientBitmapData(barWidth, barHeight, empty, chunkSize, rotation);
 			filledBar = FlxGradient.createGradientBitmapData(barWidth, barHeight, fill, chunkSize, rotation);
 			#else
@@ -587,7 +587,7 @@ class FlxBar extends FlxSprite
 			#end
 		}
 		
-		#if flash
+		#if (flash || html5)
 		emptyBarRect = new Rectangle(0, 0, emptyBar.width, emptyBar.height);
 		filledBarRect = new Rectangle(0, 0, filledBar.width, filledBar.height);
 		#else
@@ -622,7 +622,7 @@ class FlxBar extends FlxSprite
 		var emptyBitmapData:BitmapData = (emptyGraphics != null) ? emptyGraphics.bitmap : null; 
 		var fillBitmapData:BitmapData = (filledGraphics != null) ? filledGraphics.bitmap : null;
 		
-	#if !flash
+	#if !(flash || html5)
 		var emptyKey:String = "";
 		var filledKey:String = "";
 		
@@ -777,7 +777,7 @@ class FlxBar extends FlxSprite
 			#end
 		}
 		
-		#if flash
+		#if (flash || html5)
 		canvas = new BitmapData(barWidth, barHeight, true, 0x0);
 		#else
 		setCachedGraphics(FlxG.bitmap.get(emptyKey));

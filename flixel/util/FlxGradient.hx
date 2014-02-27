@@ -20,6 +20,7 @@ import flash.geom.Rectangle;
  */
 class FlxGradient
 {
+	#if !html5 // TODO: bitfive
 	public static function createGradientMatrix(width:Int, height:Int, colors:Array<Int>, chunkSize:Int = 1, rotation:Int = 90):GradientMatrix
 	{
 		var gradientMatrix:Matrix = new Matrix();
@@ -248,7 +249,7 @@ class FlxGradient
 		
 		return dest;
 	}
-	
+	#end
 }
 
 typedef GradientMatrix = {
