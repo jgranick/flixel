@@ -242,7 +242,7 @@ class FlxFrame implements IFlxDestroyable
 	public function prepareMatrix(mat:FlxMatrix, rotation:FlxFrameAngle = FlxFrameAngle.ANGLE_0, flipX:Bool = false,
 		flipY:Bool = false):FlxMatrix
 	{
-		if (FlxG.renderBlit)
+		if (FlxG.renderBlit || FlxG.renderTilemap)
 		{
 			mat.identity();
 			return mat;

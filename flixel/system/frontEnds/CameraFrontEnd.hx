@@ -188,6 +188,11 @@ class CameraFrontEnd
 				}
 			}
 			
+			if (FlxG.renderTilemap)
+			{
+				// TODO
+			}
+			
 			if (FlxG.renderTile)
 			{
 				camera.clearDrawStack();
@@ -213,7 +218,17 @@ class CameraFrontEnd
 	@:allow(flixel.FlxGame)
 	private inline function render():Void
 	{
-		if (FlxG.renderTile)
+		if (FlxG.renderTilemap)
+		{
+			for (camera in list)
+			{
+				if ((camera != null) && camera.exists && camera.visible)
+				{
+					camera.render();
+				}
+			}
+		}
+		else if (FlxG.renderTile)
 		{
 			for (camera in list)
 			{

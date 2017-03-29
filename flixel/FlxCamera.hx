@@ -10,7 +10,11 @@ import flash.geom.Rectangle;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.tile.FlxDrawBaseItem;
+#if (openfl >= "4.0.0")
+import flixel.graphics.tile.FlxDrawTilemapItem;
+#else
 import flixel.graphics.tile.FlxDrawTilesItem;
+#end
 import flixel.graphics.tile.FlxDrawTrianglesItem;
 import flixel.math.FlxMath;
 import flixel.math.FlxMatrix;
@@ -26,6 +30,10 @@ import openfl.filters.BitmapFilter;
 import openfl.geom.Matrix;
 import openfl.Vector;
 using flixel.util.FlxColorTransformUtil;
+
+#if (openfl >= "4.0.0")
+import openfl.display.Tilemap;
+#end
 
 /**
  * The camera class is used to display the game's visuals.
@@ -365,6 +373,10 @@ class FlxCamera extends FlxBasic
 	 */
 	public var canvas:Sprite;
 	
+	#if (openfl >= "4.0.0")
+	public var tilemap:Tilemap;
+	#end
+	
 	#if FLX_DEBUG
 	/**
 	 * Sprite for visual effects (flash and fade) and drawDebug information 
@@ -388,19 +400,35 @@ class FlxCamera extends FlxBasic
 	 * Pointer to head of stack with draw items
 	 */
 	private var _headOfDrawStack:FlxDrawBaseItem<Dynamic>;
+	
+	#if (openfl >= "4.0.0")
+	/**
+	 * Last tilemap item
+	 */
+	private var _headTilemap:FlxDrawTilemapItem;
+	#else
 	/**
 	 * Last draw tiles item
 	 */
 	private var _headTiles:FlxDrawTilesItem;
+	#end
+	
 	/**
 	 * Last draw triangles item
 	 */
 	private var _headTriangles:FlxDrawTrianglesItem;
 	
+	#if (openfl >= "4.0.0")
+	/**
+	 * Tilemap stack items that can be reused
+	 */
+	private static var _storageTilemapHead:FlxDrawTilemapItem;
+	#else
 	/**
 	 * Draw tiles stack items that can be reused
 	 */
 	private static var _storageTilesHead:FlxDrawTilesItem;
+	#end
 	
 	/**
 	 * Draw triangles stack items that can be reused
@@ -428,6 +456,56 @@ class FlxCamera extends FlxBasic
 	{
 		#if FLX_RENDER_TRIANGLE
 		return startTrianglesBatch(graphic, smooth, colored, blend);
+		#elseif (openfl > "4.0.0")
+		var itemToReturn:FlxDrawTilemapItem = null;
+		var blendInt:Int = FlxDrawBaseItem.blendToInt(blend);
+		
+		if (_currentDrawItem != null && _currentDrawItem.type == FlxDrawItemType.TILEMAP 
+			&& _headTilemap.graphics == graphic 
+			&& _headTilemap.colored == colored
+			&& _headTilemap.hasColorOffsets == hasColorOffsets
+			&& _headTilemap.blending == blendInt
+			&& _headTilemap.antialiasing == smooth
+			&& _headTilemap.shader == shader)
+		{	
+			return _headTilemap;
+		}
+		
+		if (_storageTilemapHead != null)
+		{
+			itemToReturn = _storageTilemapHead;
+			var newHead:FlxDrawTilemapItem = _storageTilemapHead.nextTyped;
+			itemToReturn.reset();
+			_storageTilemapHead = newHead;
+		}
+		else
+		{
+			itemToReturn = new FlxDrawTilemapItem();
+		}
+		
+		itemToReturn.graphics = graphic;
+		itemToReturn.antialiasing = smooth;
+		itemToReturn.colored = colored;
+		itemToReturn.hasColorOffsets = hasColorOffsets;
+		itemToReturn.blending = blendInt;
+		itemToReturn.shader = shader;
+		
+		itemToReturn.nextTyped = _headTilemap;
+		_headTilemap = itemToReturn;
+		
+		if (_headOfDrawStack == null)
+		{
+			_headOfDrawStack = itemToReturn;
+		}
+		
+		if (_currentDrawItem != null)
+		{
+			_currentDrawItem.next = itemToReturn;
+		}
+		
+		_currentDrawItem = itemToReturn;
+		
+		return itemToReturn;
 		#else
 		var itemToReturn:FlxDrawTilesItem = null;
 		var blendInt:Int = FlxDrawBaseItem.blendToInt(blend);
@@ -544,6 +622,9 @@ class FlxCamera extends FlxBasic
 	@:allow(flixel.system.frontEnds.CameraFrontEnd)
 	private function clearDrawStack():Void
 	{	
+		#if (openfl > "4.0.0")
+		
+		#else
 		var currTiles:FlxDrawTilesItem = _headTiles;
 		var newTilesHead:FlxDrawTilesItem;
 		
@@ -555,6 +636,9 @@ class FlxCamera extends FlxBasic
 			_storageTilesHead = currTiles;
 			currTiles = newTilesHead;
 		}
+		
+		_headTiles = null;
+		#end
 		
 		var currTriangles:FlxDrawTrianglesItem = _headTriangles;
 		var newTrianglesHead:FlxDrawTrianglesItem;
@@ -570,7 +654,6 @@ class FlxCamera extends FlxBasic
 		
 		_currentDrawItem = null;
 		_headOfDrawStack = null;
-		_headTiles = null;
 		_headTriangles = null;
 	}
 	
@@ -599,6 +682,8 @@ class FlxCamera extends FlxBasic
 			
 			#if FLX_RENDER_TRIANGLE
 			var drawItem:FlxDrawTrianglesItem = startTrianglesBatch(frame.parent, smoothing, isColored, blend);
+			#elseif (openfl > "4.0.0")
+			var drawItem:FlxDrawTilemapItem = startQuadBatch(frame.parent, isColored, hasColorOffsets, blend, smoothing, shader);
 			#else
 			var drawItem:FlxDrawTilesItem = startQuadBatch(frame.parent, isColored, hasColorOffsets, blend, smoothing, shader);
 			#end
@@ -628,10 +713,12 @@ class FlxCamera extends FlxBasic
 			var isColored = (transform != null && transform.hasRGBMultipliers());
 			var hasColorOffsets:Bool = (transform != null && transform.hasRGBAOffsets());
 			
-			#if !FLX_RENDER_TRIANGLE
-			var drawItem:FlxDrawTilesItem = startQuadBatch(frame.parent, isColored, hasColorOffsets, blend, smoothing, shader);
-			#else
+			#if FLX_RENDER_TRIANGLE
 			var drawItem:FlxDrawTrianglesItem = startTrianglesBatch(frame.parent, smoothing, isColored, blend);
+			#elseif (openfl >= "4.0.0")
+			var drawItem:FlxDrawTilemapItem = startQuadBatch(frame.parent, isColored, hasColorOffsets, blend, smoothing, shader);
+			#else
+			var drawItem:FlxDrawTilesItem = startQuadBatch(frame.parent, isColored, hasColorOffsets, blend, smoothing, shader);
 			#end
 			drawItem.addQuad(frame, _helperMatrix, transform);
 		}
@@ -748,6 +835,17 @@ class FlxCamera extends FlxBasic
 			_flashBitmap = new Bitmap(buffer);
 			_scrollRect.addChild(_flashBitmap);
 			_fill = new BitmapData(width, height, true, FlxColor.TRANSPARENT);
+		}
+		else if (FlxG.renderTilemap)
+		{
+			tilemap = new Tilemap(width, height);
+			_scrollRect.addChild(tilemap);
+			_transform = new Matrix();
+			
+			#if FLX_DEBUG
+			debugLayer = new Sprite();
+			_scrollRect.addChild(debugLayer);
+			#end
 		}
 		else
 		{
@@ -1096,6 +1194,28 @@ class FlxCamera extends FlxBasic
 				_flashBitmap.y = -0.5 * height * (scaleY - initialZoom) * FlxG.scaleMode.scale.y;
 			}
 		}
+		else if (FlxG.renderTilemap)
+		{
+			if (tilemap != null)
+			{
+				tilemap.x = -0.5 * width * (scaleX - initialZoom) * FlxG.scaleMode.scale.x;
+				tilemap.y = -0.5 * height * (scaleY - initialZoom) * FlxG.scaleMode.scale.y;
+				
+				tilemap.scaleX = totalScaleX;
+				tilemap.scaleY = totalScaleY;
+				
+				#if FLX_DEBUG
+				if (debugLayer != null)
+				{
+					debugLayer.x = tilemap.x;
+					debugLayer.y = tilemap.y;
+					
+					debugLayer.scaleX = totalScaleX;
+					debugLayer.scaleY = totalScaleY;
+				}
+				#end
+			}
+		}
 		else
 		{
 			if (canvas != null)
@@ -1340,6 +1460,10 @@ class FlxCamera extends FlxBasic
 				buffer.fillRect(_flashRect, Color);
 			}
 		}
+		else if (FlxG.renderTilemap)
+		{
+			// TODO
+		}
 		else
 		{
 			#if openfl_legacy // can't skip this on next, see #1793
@@ -1374,6 +1498,10 @@ class FlxCamera extends FlxBasic
 			{
 				fill((Std.int(((alphaComponent <= 0) ? 0xff : alphaComponent) * _fxFlashAlpha) << 24) + (_fxFlashColor & 0x00ffffff));
 			}
+			else if (FlxG.renderTilemap)
+			{
+				// TODO
+			}
 			else
 			{
 				fill((_fxFlashColor & 0x00ffffff), true, ((alphaComponent <= 0) ? 0xff : alphaComponent) * _fxFlashAlpha / 255, canvas.graphics);
@@ -1389,6 +1517,10 @@ class FlxCamera extends FlxBasic
 			{
 				fill((Std.int(((alphaComponent <= 0) ? 0xff : alphaComponent) * _fxFadeAlpha) << 24) + (_fxFadeColor & 0x00ffffff));
 			}
+			else if (FlxG.renderTilemap)
+			{
+				// TODO
+			}
 			else
 			{
 				fill((_fxFadeColor & 0x00ffffff), true, ((alphaComponent <= 0) ? 0xff : alphaComponent) * _fxFadeAlpha / 255, canvas.graphics);
@@ -1399,21 +1531,29 @@ class FlxCamera extends FlxBasic
 	@:allow(flixel.system.frontEnds.CameraFrontEnd)
 	private function checkResize():Void
 	{
-		if (!FlxG.renderBlit && !regen)
+		if (FlxG.renderTile && !regen)
 			return;
 		
 		if (width != buffer.width || height != buffer.height)
 		{
-			var oldBuffer:FlxGraphic = screen.graphic;
-			buffer = new BitmapData(width, height, true, 0);
-			screen.pixels = buffer;
-			screen.origin.set();
-			_flashBitmap.bitmapData = buffer;
-			_flashRect.width = width;
-			_flashRect.height = height;
-			_fill = FlxDestroyUtil.dispose(_fill);
-			_fill = new BitmapData(width, height, true, FlxColor.TRANSPARENT);
-			FlxG.bitmap.removeIfNoUse(oldBuffer);
+			if (FlxG.renderBlit)
+			{
+				var oldBuffer:FlxGraphic = screen.graphic;
+				buffer = new BitmapData(width, height, true, 0);
+				screen.pixels = buffer;
+				screen.origin.set();
+				_flashBitmap.bitmapData = buffer;
+				_flashRect.width = width;
+				_flashRect.height = height;
+				_fill = FlxDestroyUtil.dispose(_fill);
+				_fill = new BitmapData(width, height, true, FlxColor.TRANSPARENT);
+				FlxG.bitmap.removeIfNoUse(oldBuffer);
+			}
+			else if (FlxG.renderTilemap)
+			{
+				tilemap.width = width;
+				tilemap.height = height;
+			}
 		}
 		
 		regen = false;
@@ -1582,6 +1722,10 @@ class FlxCamera extends FlxBasic
 		{
 			_flashBitmap.alpha = Alpha;
 		}
+		else if (FlxG.renderTilemap)
+		{
+			tilemap.alpha = Alpha;
+		}
 		else
 		{
 			canvas.alpha = Alpha;
@@ -1609,6 +1753,10 @@ class FlxCamera extends FlxBasic
 			}
 			colorTransform = _flashBitmap.transform.colorTransform;
 		}
+		else if (FlxG.renderTilemap)
+		{
+			colorTransform = tilemap.transform.colorTransform;
+		}
 		else
 		{
 			colorTransform = canvas.transform.colorTransform;
@@ -1621,6 +1769,10 @@ class FlxCamera extends FlxBasic
 		if (FlxG.renderBlit)
 		{
 			_flashBitmap.transform.colorTransform = colorTransform;
+		}
+		else if (FlxG.renderTilemap)
+		{
+			tilemap.transform.colorTransform = colorTransform;
 		}
 		else
 		{

@@ -135,6 +135,7 @@ class FlxG
 	
 	public static var renderBlit(default, null):Bool;
 	public static var renderTile(default, null):Bool;
+	public static var renderTilemap(default, null):Bool;
 	
 	/**
 	 * Represents the amount of time in seconds that passed since last frame.
@@ -607,7 +608,7 @@ class FlxG
 		{
 			renderMethod = switch (stage.window.renderer.type)
 			{
-				case OPENGL, CONSOLE: DRAW_TILES;
+				case OPENGL, CONSOLE: #if (openfl >= "4.0.0") TILEMAP #else DRAW_TILES #end;
 				case CANVAS, FLASH, CAIRO: BLITTING;
 				default: BLITTING;
 			}
@@ -615,6 +616,8 @@ class FlxG
 		#else
 		#if web
 		renderMethod = BLITTING;
+		#elseif (openfl >= "4.0.0")
+		renderMethod = TILEMAP;
 		#else
 		renderMethod = DRAW_TILES;
 		#end
@@ -622,6 +625,7 @@ class FlxG
 		
 		renderBlit = renderMethod == BLITTING;
 		renderTile = renderMethod == DRAW_TILES;
+		renderTilemap = renderMethod == TILEMAP;
 		
 		FlxObject.defaultPixelPerfectPosition = renderBlit;
 	}
@@ -750,4 +754,5 @@ enum FlxRenderMethod
 {
 	DRAW_TILES;
 	BLITTING;
+	TILEMAP;
 }

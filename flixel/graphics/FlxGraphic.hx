@@ -11,7 +11,12 @@ import flixel.math.FlxRect;
 import flixel.system.FlxAssets;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
+
+#if (openfl >= "4.0.0")
+import openfl.display.Tileset;
+#else
 import openfl.display.Tilesheet;
+#end
 
 /**
  * `BitmapData` wrapper which is used for rendering.
@@ -313,10 +318,17 @@ class FlxGraphic implements IFlxDestroyable
 	 */
 	public var canBeDumped(get, never):Bool;
 	
+	#if (openfl >= "4.0.0")
+	/**
+	 * Tileset for this graphic object. It is used only for `FlxG.renderTilemap` mode.
+	 */
+	public var tileset(get, null):Tileset;
+	#else
 	/**
 	 * Tilesheet for this graphic object. It is used only for `FlxG.renderTile` mode.
 	 */
 	public var tilesheet(get, null):Tilesheet;
+	#end
 	
 	/**
 	 * Usage counter for this `FlxGraphic` object.
@@ -360,11 +372,19 @@ class FlxGraphic implements IFlxDestroyable
 	 */
 	private var _imageFrame:FlxImageFrame;
 	
+	#if (openfl >= "4.0.0")
+	/**
+	 * Internal var holding Tileset for bitmap of this graphic.
+	 * It is used only in `FlxG.renderTilemap` mode
+	 */
+	private var _tileset:Tileset;
+	#else
 	/**
 	 * Internal var holding Tilesheet for bitmap of this graphic.
 	 * It is used only in `FlxG.renderTile` mode
 	 */
 	private var _tilesheet:Tilesheet;
+	#end
 	
 	private var _useCount:Int = 0;
 	
@@ -404,7 +424,7 @@ class FlxGraphic implements IFlxDestroyable
 	}
 	
 	/**
-	 * Undumps bits of the `BitmapData` - regenerates it and regenerate tilesheet data for this object
+	 * Undumps bits of the `BitmapData` - regenerates it and regenerate tileset/tilesheet data for this object
 	 */
 	public function undump():Void
 	{
@@ -420,7 +440,7 @@ class FlxGraphic implements IFlxDestroyable
 	 */
 	public function onContext():Void
 	{
-		// no need to restore tilesheet if it hasn't been dumped
+		// no need to restore tileset/tilesheet if it hasn't been dumped
 		if (isDumped)
 		{
 			undump(); // restore everything
@@ -430,7 +450,7 @@ class FlxGraphic implements IFlxDestroyable
 	
 	/**
 	 * Asset reload callback for this graphic object.
-	 * It regenerated its tilesheet and resets frame bitmaps.
+	 * It regenerated its tileset/tilesheet and resets frame bitmaps.
 	 */
 	public function onAssetsReload():Void
 	{
@@ -451,7 +471,11 @@ class FlxGraphic implements IFlxDestroyable
 		bitmap = FlxDestroyUtil.dispose(bitmap);
 		if (FlxG.renderTile)
 		{
+			#if (openfl >= "4.0.0")
+			_tileset = null;
+			#else
 			_tilesheet = null;
+			#end
 		}
 		key = null;
 		assetsKey = null;
@@ -516,6 +540,29 @@ class FlxGraphic implements IFlxDestroyable
 		return frame;
 	}
 	
+	#if (openfl >= "4.0.0")
+	/**
+	 * Tileset getter. Generates new one (and regenerates) if there is no tileset for this graphic yet.
+	 */
+	private function get_tileset():Tileset
+	{
+		if (_tileset == null)
+		{
+			var dumped:Bool = isDumped;
+			
+			if (dumped)
+				undump();
+			
+			_tileset = new Tileset(bitmap);
+			_tileset.addRect(bitmap.rect);
+			
+			if (dumped)
+				dump();
+		}
+		
+		return _tileset;
+	}
+	#else
 	/**
 	 * Tilesheet getter. Generates new one (and regenerates) if there is no tilesheet for this graphic yet.
 	 */
@@ -536,6 +583,7 @@ class FlxGraphic implements IFlxDestroyable
 		
 		return _tilesheet;
 	}
+	#end
 	
 	/**
 	 * Gets the `BitmapData` for this graphic object from OpenFL.
@@ -609,8 +657,16 @@ class FlxGraphic implements IFlxDestroyable
 			width = bitmap.width;
 			height = bitmap.height;
 			#if !flash
+			#if (openfl >= "4.0.0")
+			if (FlxG.renderTilemap && _tileset != null)
+			{
+				_tileset = new Tileset(bitmap);
+				_tileset.addRect(bitmap.rect);
+			}
+			#else
 			if (FlxG.renderTile && _tilesheet != null)
 				_tilesheet = new Tilesheet(bitmap);
+			#end
 			#end
 		}
 		

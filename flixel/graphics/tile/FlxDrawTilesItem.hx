@@ -1,4 +1,4 @@
-package flixel.graphics.tile;
+package flixel.graphics.tile; #if (openfl < "4.0.0")
 
 import flixel.FlxCamera;
 import flixel.graphics.frames.FlxFrame;
@@ -128,3 +128,5 @@ class FlxDrawTilesItem extends FlxDrawBaseItem<FlxDrawTilesItem>
 		return 2 * numTiles;
 	}
 }
+
+#end
