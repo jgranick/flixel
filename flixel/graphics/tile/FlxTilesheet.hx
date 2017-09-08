@@ -175,63 +175,74 @@ class FlxTilesheet extends Tileset
 		var iIndex = 0;
 		var tint = 0xFFFFFF;
 		
-		var a, b, c, d, tx, ty, x, y, width, height;
-		var rM = 1.0, gM = 1.0, bM = 1.0, aM = 1.0, rO = 0.0, gO = 0.0, bO = 0.0, aO = 0.0;
-		
 		var tileArray = tilemap.getTiles();
 		tileArray.length = itemCount;
 		tileArray.position = 0;
 		
-		while (iIndex < totalCount) {
+		var rect = tileArray.rect;
+		var matrix = tileArray.matrix;
+		var colorTransform = tileArray.colorTransform;
+		
+		for (tile in tileArray) {
 			
 			// useRect is always true
 			
-			x = tileData[iIndex + 2];
-			y = tileData[iIndex + 3];
-			width = tileData[iIndex + 4];
-			height = tileData[iIndex + 5];
-			
-			tileArray.setRect(x, y, width, height);
+			rect.x = tileData[iIndex + 2];
+			rect.y = tileData[iIndex + 3];
+			rect.width = tileData[iIndex + 4];
+			rect.height = tileData[iIndex + 5];
+			tile.rect = rect;
 			
 			// useTransform is always true
 			
-			a = tileData[iIndex + transformIndex + 0];
-			b = tileData[iIndex + transformIndex + 1];
-			c = tileData[iIndex + transformIndex + 2];
-			d = tileData[iIndex + transformIndex + 3];
-			tx = tileData[iIndex + 0];
-			ty = tileData[iIndex + 1];
-			
-			tileArray.setMatrix(a, b, c, d, tx, ty);
+			matrix.a = tileData[iIndex + transformIndex + 0];
+			matrix.b = tileData[iIndex + transformIndex + 1];
+			matrix.c = tileData[iIndex + transformIndex + 2];
+			matrix.d = tileData[iIndex + transformIndex + 3];
+			matrix.tx = tileData[iIndex + 0];
+			matrix.ty = tileData[iIndex + 1];
+			tile.matrix = matrix;
 			
 			// useAlpha is always true
 			
-			tileArray.alpha = tileData[iIndex + alphaIndex];
+			tile.alpha = tileData[iIndex + alphaIndex];
 			
 			if (useRGB)
 			{
-				rM = tileData[iIndex + rgbIndex];
-				gM = tileData[iIndex + rgbIndex + 1];
-				bM = tileData[iIndex + rgbIndex + 2];
-				aM = tileData[iIndex + rgbIndex + 3];
+				colorTransform.redMultiplier = tileData[iIndex + rgbIndex];
+				colorTransform.greenMultiplier = tileData[iIndex + rgbIndex + 1];
+				colorTransform.blueMultiplier = tileData[iIndex + rgbIndex + 2];
+				colorTransform.alphaMultiplier = tileData[iIndex + rgbIndex + 3];
+			}
+			else if (useRGBOffset)
+			{
+				colorTransform.redMultiplier = 1;
+				colorTransform.greenMultiplier = 1;
+				colorTransform.blueMultiplier = 1;
+				colorTransform.alphaMultiplier = 1;
 			}
 			
 			if (useRGBOffset)
 			{
-				rO = tileData[iIndex + rgbOffsetIndex];
-				gO = tileData[iIndex + rgbOffsetIndex];
-				bO = tileData[iIndex + rgbOffsetIndex];
-				aO = tileData[iIndex + rgbOffsetIndex];
+				colorTransform.redOffset = tileData[iIndex + rgbOffsetIndex];
+				colorTransform.greenOffset = tileData[iIndex + rgbOffsetIndex];
+				colorTransform.blueOffset = tileData[iIndex + rgbOffsetIndex];
+				colorTransform.alphaOffset = tileData[iIndex + rgbOffsetIndex];
+			}
+			else if (useRGB)
+			{
+				colorTransform.redOffset = 0;
+				colorTransform.greenOffset = 0;
+				colorTransform.blueOffset = 0;
+				colorTransform.alphaOffset = 0;
 			}
 			
 			if (useRGB || useRGBOffset)
 			{
-				tileArray.setColorTransform(rM, gM, bM, aM, rO, gO, bO, aO);
+				tile.colorTransform = colorTransform;
 			}
 			
-			tileArray.position++;
 			iIndex += numValues;
-			
 		}
 		
 		tilemap.setTiles(tileArray);
