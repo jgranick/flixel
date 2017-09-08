@@ -20,6 +20,7 @@ import flash.text.TextFormat;
 import flash.text.TextFormatAlign;
 import flixel.util.FlxColor;
 import flixel.util.FlxStringUtil;
+import openfl.Vector;
 
 class FlxBasePreloader extends DefaultPreloader
 {
@@ -299,13 +300,13 @@ class FlxBasePreloader extends DefaultPreloader
 
 		graphics.beginFill(color);
 		graphics.drawPath(
-			[1, 6, 2, 2, 2, 6, 6, 2, 2, 2, 6, 1, 6, 2, 6, 2, 6, 2, 6, 1, 6, 6, 2, 2, 2, 6, 6],
-			[120.0, 0, 164, 0, 200, 35, 200, 79, 200, 130, 160, 130, 160, 79, 160, 57, 142, 40,
+			Vector.ofArray([1, 6, 2, 2, 2, 6, 6, 2, 2, 2, 6, 1, 6, 2, 6, 2, 6, 2, 6, 1, 6, 6, 2, 2, 2, 6, 6]),
+			Vector.ofArray([120.0, 0, 164, 0, 200, 35, 200, 79, 200, 130, 160, 130, 160, 79, 160, 57, 142, 40,
 				120, 40, 97, 40, 79, 57, 79, 79, 80, 130, 40, 130, 40, 79, 40, 35, 75, 0, 120, 0,
 				220, 140, 231, 140, 240, 148, 240, 160, 240, 300, 240, 311, 231, 320, 220, 320,
 				20, 320, 8, 320, 0, 311, 0, 300, 0, 160, 0, 148, 8, 140, 20, 140, 120, 190, 108,
 				190, 100, 198, 100, 210, 100, 217, 104, 223, 110, 227, 110, 270, 130, 270, 130,
-				227, 135, 223, 140, 217, 140, 210, 140, 198, 131, 190, 120, 190],
+				227, 135, 223, 140, 217, 140, 210, 140, 198, 131, 190, 120, 190]),
 			GraphicsPathWinding.NON_ZERO
 		);
 		graphics.endFill();
