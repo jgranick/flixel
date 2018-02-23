@@ -47,8 +47,8 @@ import openfl.display.BlendMode;
 import openfl.display.Graphics;
 import openfl.display.Shader;
 import openfl.display.Sprite;
-import openfl.display.TileAttribute;
 import openfl.display.Tileset;
+import openfl.display.VertexAttribute;
 import openfl.events.Event;
 import openfl.geom.ColorTransform;
 import openfl.geom.Matrix;
@@ -223,7 +223,7 @@ class FlxTilesheet extends Tileset
 		}
 		
 		canvas.graphics.beginBitmapFill (bitmapData, null, false, smooth);
-		canvas.graphics.drawTiles (transforms, rects, null, attributes, TileAttribute.ALPHA | TileAttribute.COLOR_TRANSFORM);
+		canvas.graphics.drawTiles (transforms, rects, null, attributes, VertexAttribute.ALPHA | VertexAttribute.COLOR_TRANSFORM);
 	}
 }
 
