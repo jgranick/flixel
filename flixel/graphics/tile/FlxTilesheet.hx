@@ -47,15 +47,15 @@ import openfl.display.BlendMode;
 import openfl.display.Graphics;
 import openfl.display.Shader;
 import openfl.display.Sprite;
-import openfl.display.Tile;
-import openfl.display.TileArray;
-import openfl.display.Tilemap;
+import openfl.display.TileAttribute;
 import openfl.display.Tileset;
 import openfl.events.Event;
+import openfl.geom.ColorTransform;
 import openfl.geom.Matrix;
 import openfl.geom.Rectangle;
 import openfl.geom.Point;
 import openfl.Lib;
+import openfl.Vector;
 
 class FlxTilesheet extends Tileset
 {
@@ -84,45 +84,14 @@ class FlxTilesheet extends Tileset
 	public static inline var TILE_BLEND_DIFFERENCE = 0x01000000;
 	public static inline var TILE_BLEND_INVERT = 0x02000000;
 	
-	private var _tilemap = new Map<Sprite, Tilemap>();
-	
-	public function new(image:BitmapData)
-	{	
-		super(image);
-		// TODO: Better solution, cleanup removed tilemaps
-		Lib.current.addEventListener(Event.ENTER_FRAME, function(_)
-		{
-			var tilemap:Tilemap;
-			for (canvas in _tilemap.keys())
-			{
-				tilemap = _tilemap[canvas];
-				if (tilemap.parent == null)
-				{
-					_tilemap.remove(canvas);
-				}
-			}
-		});
-	}
-	
 	public function draw (canvas:Sprite, tileData:Array<Float>, smooth:Bool = false, flags:Int = 0, shader:Shader, count:Int = -1):Void
 	{
-		var tilemap = _tilemap[canvas];
-		if (tilemap == null)
-		{
-			tilemap = new Tilemap(0, 0, this);
-			_tilemap[canvas] = tilemap;
-		}
-		canvas.addChild(tilemap);
-		tilemap.shader = shader;
-		tilemap.visible = true;
-		tilemap.width = Lib.current.stage.stageWidth;
-		tilemap.height = Lib.current.stage.stageHeight;
-		tilemap.smoothing = smooth;
-		_updateTileData(tilemap, tileData, flags, count);
-	}
-	
-	private function _updateTileData(tilemap:Tilemap, tileData:Array<Float>, flags:Int, count:Int):Void
-	{
+		// TODO: Better method
+		
+		var transforms = new Vector<Float>();
+		var rects = new Vector<Float>();
+		var attributes = new Vector<Float>();
+		
 		var useScale = (flags & TILE_SCALE) > 0;
 		var useRotation = (flags & TILE_ROTATION) > 0;
 		var useTransform = (flags & TILE_TRANS_2x2) > 0;
@@ -175,37 +144,29 @@ class FlxTilesheet extends Tileset
 		var iIndex = 0;
 		var tint = 0xFFFFFF;
 		
-		var tileArray = tilemap.getTiles();
-		tileArray.length = itemCount;
-		tileArray.position = 0;
+		var colorTransform = new ColorTransform ();
 		
-		var rect = tileArray.rect;
-		var matrix = tileArray.matrix;
-		var colorTransform = tileArray.colorTransform;
-		
-		for (tile in tileArray) {
+		for (i in 0...itemCount) {
 			
 			// useRect is always true
 			
-			rect.x = tileData[iIndex + 2];
-			rect.y = tileData[iIndex + 3];
-			rect.width = tileData[iIndex + 4];
-			rect.height = tileData[iIndex + 5];
-			tile.rect = rect;
+			rects.push (tileData[iIndex + 2]); //x
+			rects.push (tileData[iIndex + 3]); //y
+			rects.push (tileData[iIndex + 4]); //width
+			rects.push (tileData[iIndex + 5]); //height
 			
 			// useTransform is always true
 			
-			matrix.a = tileData[iIndex + transformIndex + 0];
-			matrix.b = tileData[iIndex + transformIndex + 1];
-			matrix.c = tileData[iIndex + transformIndex + 2];
-			matrix.d = tileData[iIndex + transformIndex + 3];
-			matrix.tx = tileData[iIndex + 0];
-			matrix.ty = tileData[iIndex + 1];
-			tile.matrix = matrix;
+			transforms.push (tileData[iIndex + transformIndex + 0]); //a
+			transforms.push (tileData[iIndex + transformIndex + 1]); //b
+			transforms.push (tileData[iIndex + transformIndex + 2]); //c
+			transforms.push (tileData[iIndex + transformIndex + 3]); //d
+			transforms.push (tileData[iIndex + 0]); //tx
+			transforms.push (tileData[iIndex + 1]); //ty
 			
 			// useAlpha is always true
 			
-			tile.alpha = tileData[iIndex + alphaIndex];
+			attributes.push (tileData[iIndex + alphaIndex]);
 			
 			if (useRGB)
 			{
@@ -237,20 +198,33 @@ class FlxTilesheet extends Tileset
 				colorTransform.alphaOffset = 0;
 			}
 			
-			if (useRGB || useRGBOffset)
-			{
-				tile.colorTransform = colorTransform;
+			if (!useRGB && !useRGBOffset) {
+				colorTransform.redMultiplier = 1;
+				colorTransform.greenMultiplier = 1;
+				colorTransform.blueMultiplier = 1;
+				colorTransform.alphaMultiplier = 1;
+				colorTransform.redOffset = 0;
+				colorTransform.greenOffset = 0;
+				colorTransform.blueOffset = 0;
+				colorTransform.alphaOffset = 0;
 			}
 			
+			attributes.push (colorTransform.redMultiplier);
+			attributes.push (colorTransform.greenMultiplier);
+			attributes.push (colorTransform.blueMultiplier);
+			attributes.push (colorTransform.alphaMultiplier);
+			attributes.push (colorTransform.redOffset);
+			attributes.push (colorTransform.greenOffset);
+			attributes.push (colorTransform.blueOffset);
+			attributes.push (colorTransform.alphaOffset);
+			
 			iIndex += numValues;
+			
 		}
 		
-		tilemap.setTiles(tileArray);
+		canvas.graphics.beginBitmapFill (bitmapData, null, false, smooth);
+		canvas.graphics.drawTiles (transforms, rects, null, attributes, TileAttribute.ALPHA | TileAttribute.COLOR_TRANSFORM);
 	}
-	
-	//public function getTileCenter (index:Int):Point;
-	//public function getTileRect (index:Int):Rectangle;
-	//public function getTileUVs (index:Int):Rectangle;
 }
 
 #end
