@@ -88,7 +88,7 @@ class FlxTilesheet extends Tileset
 	{
 		// TODO: Better method
 		
-		var transforms = new Vector<Float>();
+		var matrices = new Vector<Float>();
 		var rects = new Vector<Float>();
 		var attributes = new Vector<Float>();
 		
@@ -157,12 +157,12 @@ class FlxTilesheet extends Tileset
 			
 			// useTransform is always true
 			
-			transforms.push (tileData[iIndex + transformIndex + 0]); //a
-			transforms.push (tileData[iIndex + transformIndex + 1]); //b
-			transforms.push (tileData[iIndex + transformIndex + 2]); //c
-			transforms.push (tileData[iIndex + transformIndex + 3]); //d
-			transforms.push (tileData[iIndex + 0]); //tx
-			transforms.push (tileData[iIndex + 1]); //ty
+			matrices.push (tileData[iIndex + transformIndex + 0]); //a
+			matrices.push (tileData[iIndex + transformIndex + 1]); //b
+			matrices.push (tileData[iIndex + transformIndex + 2]); //c
+			matrices.push (tileData[iIndex + transformIndex + 3]); //d
+			matrices.push (tileData[iIndex + 0]); //tx
+			matrices.push (tileData[iIndex + 1]); //ty
 			
 			// useAlpha is always true
 			
@@ -223,7 +223,7 @@ class FlxTilesheet extends Tileset
 		}
 		
 		canvas.graphics.beginBitmapFill (bitmapData, null, false, smooth);
-		canvas.graphics.drawTiles (transforms, rects, null, attributes, VertexAttribute.ALPHA | VertexAttribute.COLOR_TRANSFORM);
+		canvas.graphics.drawQuads (matrices, rects, null, attributes, VertexAttribute.ALPHA | VertexAttribute.COLOR_TRANSFORM);
 	}
 }
 
